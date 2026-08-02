@@ -66,3 +66,14 @@ button:hover {
   color: #6b7280;
   font-size: 14px;
 }
+.error {
+  margin-top: 16px;
+  color: #dc2626;
+  font-size: 14px;
+}
+.error {
+  margin-top: 16px;
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: bold;
+}
