@@ -22,11 +22,17 @@
         [(ngModel)]="password"
       />
 
-      <button type="button" (click)="onSubmit()">Se connecter</button>
+      <button type="button" (click)="onSubmit()" [disabled]="loading">
+        {{ loading ? 'Connexion...' : 'Se connecter' }}
+      </button>
     </div>
 
     <p class="error">
       {{ errorMessage }}
+    </p>
+
+    <p class="success">
+      {{ successMessage }}
     </p>
 
     <p class="hint">

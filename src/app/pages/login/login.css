@@ -77,3 +77,14 @@ button:hover {
   font-size: 14px;
   font-weight: bold;
 }
+.success {
+  margin-top: 16px;
+  color: #16a34a;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
