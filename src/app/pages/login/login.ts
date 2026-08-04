@@ -15,7 +15,13 @@ export class Login {
   successMessage = '';
   loading = false;
 
-  constructor(private auth: Auth) {}
+  isLoggedIn = false;
+  userName = '';
+  userRole = '';
+
+  constructor(private auth: Auth) {
+    this.loadSession();
+  }
 
   onSubmit() {
     this.errorMessage = '';
@@ -32,6 +38,10 @@ export class Login {
       next: (response) => {
         this.auth.saveSession(response);
 
+        this.isLoggedIn = true;
+        this.userName = response.name;
+        this.userRole = response.role;
+
         this.successMessage = `Connexion réussie. Bienvenue ${response.name}.`;
         this.loading = false;
 
@@ -47,5 +57,31 @@ export class Login {
         this.loading = false;
       }
     });
+  }
+
+  logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
+
+    this.isLoggedIn = false;
+    this.userName = '';
+    this.userRole = '';
+    this.successMessage = '';
+    this.errorMessage = '';
+    this.password = '';
+  }
+
+  private loadSession() {
+    const token = localStorage.getItem('token');
+    const name = localStorage.getItem('userName');
+    const role = localStorage.getItem('userRole');
+
+    if (token && name && role) {
+      this.isLoggedIn = true;
+      this.userName = name;
+      this.userRole = role;
+    }
   }
 }

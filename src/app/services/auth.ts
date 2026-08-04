@@ -22,8 +22,8 @@ export class Auth {
 
   login(email: string, password: string): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
-      email: email,
-      password: password
+      email,
+      password
     });
   }
 

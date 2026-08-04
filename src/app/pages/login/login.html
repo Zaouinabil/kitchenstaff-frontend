@@ -3,29 +3,47 @@
     <h1>Kitchenstaff</h1>
     <h2>Connexion</h2>
 
-    <div class="login-form">
-      <label for="email">Email</label>
-      <input
-        id="email"
-        type="email"
-        name="email"
-        placeholder="admin@kitchenstaff.test"
-        [(ngModel)]="email"
-      />
+    @if (!isLoggedIn) {
+      <div class="login-form">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          name="email"
+          placeholder="admin@kitchenstaff.test"
+          [(ngModel)]="email"
+        />
 
-      <label for="password">Mot de passe</label>
-      <input
-        id="password"
-        type="password"
-        name="password"
-        placeholder="Votre mot de passe"
-        [(ngModel)]="password"
-      />
+        <label for="password">Mot de passe</label>
+        <input
+          id="password"
+          type="password"
+          name="password"
+          placeholder="Votre mot de passe"
+          [(ngModel)]="password"
+        />
 
-      <button type="button" (click)="onSubmit()" [disabled]="loading">
-        {{ loading ? 'Connexion...' : 'Se connecter' }}
-      </button>
-    </div>
+        <button type="button" (click)="onSubmit()" [disabled]="loading">
+          {{ loading ? 'Connexion...' : 'Se connecter' }}
+        </button>
+      </div>
+
+      <p class="hint">
+        Utilisez un compte ADMIN, CHEF ou COMMIS créé dans le backend.
+      </p>
+    }
+
+    @if (isLoggedIn) {
+      <div class="session-box">
+        <p>Connecté comme :</p>
+        <h3>{{ userName }}</h3>
+        <p>Rôle : {{ userRole }}</p>
+
+        <button type="button" class="logout-button" (click)="logout()">
+          Se déconnecter
+        </button>
+      </div>
+    }
 
     <p class="error">
       {{ errorMessage }}
@@ -33,10 +51,6 @@
 
     <p class="success">
       {{ successMessage }}
-    </p>
-
-    <p class="hint">
-      Utilisez un compte ADMIN, CHEF ou COMMIS créé dans le backend.
     </p>
   </section>
 </main>

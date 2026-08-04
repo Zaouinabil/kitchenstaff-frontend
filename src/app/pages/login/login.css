@@ -88,3 +88,28 @@ button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
+.session-box {
+  margin-top: 24px;
+  padding: 20px;
+  background: #eef2ff;
+  border-radius: 12px;
+}
+
+.session-box p {
+  margin: 6px 0;
+  color: #4b5563;
+}
+
+.session-box h3 {
+  margin: 8px 0;
+  color: #1f2937;
+}
+
+.logout-button {
+  margin-top: 16px;
+  background: #dc2626;
+}
+
+.logout-button:hover {
+  background: #b91c1c;
+}
