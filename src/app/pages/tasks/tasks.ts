@@ -11,6 +11,7 @@ export class TasksPage {
   tasks: Task[] = [];
   loading = false;
   errorMessage = '';
+  actionMessage = '';
 
   constructor(private tasksService: Tasks) {}
 
@@ -21,8 +22,6 @@ export class TasksPage {
   loadTasks() {
     const token = localStorage.getItem('token');
 
-    console.log('Token utilisé pour charger les tâches:', token);
-
     if (!token) {
       this.errorMessage = 'Connectez-vous pour afficher les tâches.';
       this.loading = false;
@@ -31,11 +30,10 @@ export class TasksPage {
 
     this.loading = true;
     this.errorMessage = '';
+    this.actionMessage = '';
 
     this.tasksService.findAll().subscribe({
       next: (response) => {
-        console.log('Tâches reçues:', response);
-
         this.tasks = response;
         this.loading = false;
       },
@@ -47,6 +45,54 @@ export class TasksPage {
       },
       complete: () => {
         this.loading = false;
+      }
+    });
+  }
+
+  startTask(taskId: number) {
+    this.actionMessage = '';
+    this.errorMessage = '';
+
+    this.tasksService.startTask(taskId).subscribe({
+      next: () => {
+        this.actionMessage = 'Tâche démarrée avec succès.';
+        this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Erreur démarrage tâche:', error);
+        this.errorMessage = 'Impossible de démarrer la tâche.';
+      }
+    });
+  }
+
+  completeTask(taskId: number) {
+    this.actionMessage = '';
+    this.errorMessage = '';
+
+    this.tasksService.completeTask(taskId).subscribe({
+      next: () => {
+        this.actionMessage = 'Tâche terminée avec succès.';
+        this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Erreur fin tâche:', error);
+        this.errorMessage = 'Impossible de terminer la tâche.';
+      }
+    });
+  }
+
+  cancelTask(taskId: number) {
+    this.actionMessage = '';
+    this.errorMessage = '';
+
+    this.tasksService.cancelTask(taskId).subscribe({
+      next: () => {
+        this.actionMessage = 'Tâche annulée avec succès.';
+        this.loadTasks();
+      },
+      error: (error) => {
+        console.error('Erreur annulation tâche:', error);
+        this.errorMessage = 'Impossible d’annuler la tâche.';
       }
     });
   }

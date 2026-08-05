@@ -18,6 +18,10 @@
     <p class="error">{{ errorMessage }}</p>
   }
 
+  @if (actionMessage) {
+    <p class="success">{{ actionMessage }}</p>
+  }
+
   @if (!loading && tasks.length === 0 && !errorMessage) {
     <p class="info">Aucune tâche trouvée.</p>
   }
@@ -28,7 +32,9 @@
         <article class="task-card">
           <div class="task-top">
             <h3>{{ task.itemName }}</h3>
-            <span class="status">{{ task.status }}</span>
+            <span class="status" [class.done]="task.status === 'TERMINEE'" [class.cancelled]="task.status === 'ANNULEE'">
+              {{ task.status }}
+            </span>
           </div>
 
           <p class="category">{{ task.categoryName }}</p>
@@ -51,6 +57,26 @@
           <p class="comment">
             {{ task.comment }}
           </p>
+
+          <div class="task-actions">
+            @if (task.status === 'A_FAIRE') {
+              <button type="button" class="start-button" (click)="startTask(task.id)">
+                Démarrer
+              </button>
+            }
+
+            @if (task.status === 'EN_COURS') {
+              <button type="button" class="done-button" (click)="completeTask(task.id)">
+                Terminer
+              </button>
+            }
+
+            @if (task.status !== 'TERMINEE' && task.status !== 'ANNULEE') {
+              <button type="button" class="cancel-button" (click)="cancelTask(task.id)">
+                Annuler
+              </button>
+            }
+          </div>
         </article>
       }
     </div>

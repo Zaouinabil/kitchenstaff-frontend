@@ -27,12 +27,34 @@ export class Tasks {
   constructor(private http: HttpClient) {}
 
   findAll(): Observable<Task[]> {
+    return this.http.get<Task[]>(this.apiUrl, {
+      headers: this.getHeaders()
+    });
+  }
+
+  startTask(id: number): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/${id}/start`, {}, {
+      headers: this.getHeaders()
+    });
+  }
+
+  completeTask(id: number): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/${id}/done`, {}, {
+      headers: this.getHeaders()
+    });
+  }
+
+  cancelTask(id: number): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/${id}/cancel`, {}, {
+      headers: this.getHeaders()
+    });
+  }
+
+  private getHeaders(): HttpHeaders {
     const token = localStorage.getItem('token');
 
-    const headers = new HttpHeaders({
+    return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
-
-    return this.http.get<Task[]>(this.apiUrl, { headers });
   }
 }
