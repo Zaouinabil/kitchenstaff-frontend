@@ -1,0 +1,58 @@
+<section class="tasks-page">
+  <div class="tasks-header">
+    <div>
+      <h2>Tâches du jour</h2>
+      <p>Liste des préparations à suivre en cuisine.</p>
+    </div>
+
+    <button type="button" (click)="loadTasks()">
+      Actualiser
+    </button>
+  </div>
+
+  @if (loading) {
+    <p class="info">Chargement des tâches...</p>
+  }
+
+  @if (errorMessage) {
+    <p class="error">{{ errorMessage }}</p>
+  }
+
+  @if (!loading && tasks.length === 0 && !errorMessage) {
+    <p class="info">Aucune tâche trouvée.</p>
+  }
+
+  @if (!loading && tasks.length > 0) {
+    <div class="tasks-list">
+      @for (task of tasks; track task.id) {
+        <article class="task-card">
+          <div class="task-top">
+            <h3>{{ task.itemName }}</h3>
+            <span class="status">{{ task.status }}</span>
+          </div>
+
+          <p class="category">{{ task.categoryName }}</p>
+
+          <p>
+            Quantité :
+            <strong>{{ task.quantity }} {{ task.unit }}</strong>
+          </p>
+
+          <p>
+            Priorité :
+            <strong>{{ task.priority }}</strong>
+          </p>
+
+          <p>
+            Assigné à :
+            <strong>{{ task.assignedUserName || 'Non assigné' }}</strong>
+          </p>
+
+          <p class="comment">
+            {{ task.comment }}
+          </p>
+        </article>
+      }
+    </div>
+  }
+</section>

@@ -1,0 +1,84 @@
+.tasks-page {
+  margin-top: 32px;
+  width: 100%;
+}
+
+.tasks-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.tasks-header h2 {
+  margin: 0;
+  color: #1f2937;
+}
+
+.tasks-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+}
+
+.tasks-header button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+.tasks-list {
+  display: grid;
+  gap: 16px;
+}
+
+.task-card {
+  padding: 18px;
+  border-radius: 14px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+
+.task-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.task-card h3 {
+  margin: 0;
+  color: #111827;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.category {
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+.comment {
+  margin-top: 12px;
+  color: #374151;
+  font-style: italic;
+}
+
+.info {
+  color: #6b7280;
+}
+
+.error {
+  color: #dc2626;
+  font-weight: bold;
+}
