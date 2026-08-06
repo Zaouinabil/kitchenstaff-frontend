@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { finalize } from 'rxjs';
+import { distinctUntilChanged, finalize, Subscription } from 'rxjs';
+import { Auth } from '../../services/auth';
 import { Tasks, Task } from '../../services/tasks';
 
 @Component({
@@ -24,19 +25,31 @@ export class TasksPage implements OnInit, OnDestroy {
     { label: 'Annulées', value: 'ANNULEE' }
   ];
 
-  private authListener = () => {
-    this.loadTasks();
-  };
+  private authSubscription?: Subscription;
 
-  constructor(private tasksService: Tasks) {}
+  constructor(
+    private tasksService: Tasks,
+    private auth: Auth
+  ) {}
 
   ngOnInit() {
-    window.addEventListener('auth-changed', this.authListener);
-    this.loadTasks();
+    this.authSubscription = this.auth.authenticated$
+      .pipe(distinctUntilChanged())
+      .subscribe((authenticated) => {
+        if (authenticated) {
+          this.loadTasks();
+          return;
+        }
+
+        this.tasks = [];
+        this.errorMessage = 'Connectez-vous pour afficher les tâches.';
+        this.actionMessage = '';
+        this.loading = false;
+      });
   }
 
   ngOnDestroy() {
-    window.removeEventListener('auth-changed', this.authListener);
+    this.authSubscription?.unsubscribe();
   }
 
   loadTasks() {

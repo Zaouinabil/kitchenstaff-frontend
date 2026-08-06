@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface LoginResponse {
   userId: number;
@@ -17,6 +17,11 @@ export interface LoginResponse {
 })
 export class Auth {
   private apiUrl = 'http://localhost:8080/api/v1/auth';
+  private authenticatedSubject = new BehaviorSubject<boolean>(
+    !!localStorage.getItem('token')
+  );
+
+  readonly authenticated$ = this.authenticatedSubject.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -33,7 +38,7 @@ export class Auth {
     localStorage.setItem('userRole', response.role);
     localStorage.setItem('userEmail', response.email);
 
-    window.dispatchEvent(new Event('auth-changed'));
+    this.authenticatedSubject.next(true);
   }
 
   logout(): void {
@@ -42,6 +47,6 @@ export class Auth {
     localStorage.removeItem('userRole');
     localStorage.removeItem('userEmail');
 
-    window.dispatchEvent(new Event('auth-changed'));
+    this.authenticatedSubject.next(false);
   }
 }

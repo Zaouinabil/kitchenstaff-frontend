@@ -26,11 +26,11 @@
     <p class="info">Chargement des tâches...</p>
   }
 
-  @if (errorMessage) {
+  @if (!loading && errorMessage) {
     <p class="error">{{ errorMessage }}</p>
   }
 
-  @if (actionMessage) {
+  @if (!loading && actionMessage) {
     <p class="success">{{ actionMessage }}</p>
   }
 
