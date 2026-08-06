@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface Task {
@@ -26,9 +26,16 @@ export class Tasks {
 
   constructor(private http: HttpClient) {}
 
-  findAll(): Observable<Task[]> {
+  findAll(status?: string): Observable<Task[]> {
+    let params = new HttpParams();
+
+    if (status) {
+      params = params.set('status', status);
+    }
+
     return this.http.get<Task[]>(this.apiUrl, {
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      params: params
     });
   }
 

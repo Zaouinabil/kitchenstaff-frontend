@@ -60,18 +60,15 @@ export class Login {
   }
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
+  this.auth.logout();
 
-    this.isLoggedIn = false;
-    this.userName = '';
-    this.userRole = '';
-    this.successMessage = '';
-    this.errorMessage = '';
-    this.password = '';
-  }
+  this.isLoggedIn = false;
+  this.userName = '';
+  this.userRole = '';
+  this.successMessage = '';
+  this.errorMessage = '';
+  this.password = '';
+}
 
   private loadSession() {
     const token = localStorage.getItem('token');

@@ -10,6 +10,18 @@
     </button>
   </div>
 
+  <div class="status-filters">
+    @for (filter of statusFilters; track filter.value) {
+      <button
+        type="button"
+        [class.active]="selectedStatus === filter.value"
+        (click)="changeStatusFilter(filter.value)"
+      >
+        {{ filter.label }}
+      </button>
+    }
+  </div>
+
   @if (loading) {
     <p class="info">Chargement des tâches...</p>
   }
@@ -32,7 +44,13 @@
         <article class="task-card">
           <div class="task-top">
             <h3>{{ task.itemName }}</h3>
-            <span class="status" [class.done]="task.status === 'TERMINEE'" [class.cancelled]="task.status === 'ANNULEE'">
+
+            <span
+              class="status"
+              [class.done]="task.status === 'TERMINEE'"
+              [class.cancelled]="task.status === 'ANNULEE'"
+              [class.in-progress]="task.status === 'EN_COURS'"
+            >
               {{ task.status }}
             </span>
           </div>

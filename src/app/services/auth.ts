@@ -32,5 +32,16 @@ export class Auth {
     localStorage.setItem('userName', response.name);
     localStorage.setItem('userRole', response.role);
     localStorage.setItem('userEmail', response.email);
+
+    window.dispatchEvent(new Event('auth-changed'));
+  }
+
+  logout(): void {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
+
+    window.dispatchEvent(new Event('auth-changed'));
   }
 }
