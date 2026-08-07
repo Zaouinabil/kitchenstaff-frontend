@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Login } from './pages/login/login';
 import { TasksPage } from './pages/tasks/tasks';
 
@@ -8,6 +8,24 @@ import { TasksPage } from './pages/tasks/tasks';
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App {
+export class App implements OnInit, OnDestroy {
   protected title = 'kitchenstaff-frontend';
+  isLoggedIn = false;
+
+  private authListener = () => {
+    this.checkLogin();
+  };
+
+  ngOnInit() {
+    this.checkLogin();
+    window.addEventListener('auth-changed', this.authListener);
+  }
+
+  ngOnDestroy() {
+    window.removeEventListener('auth-changed', this.authListener);
+  }
+
+  private checkLogin() {
+    this.isLoggedIn = !!localStorage.getItem('token');
+  }
 }

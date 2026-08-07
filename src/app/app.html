@@ -1,2 +1,5 @@
 <app-login></app-login>
-<app-tasks></app-tasks>
+
+@if (isLoggedIn) {
+  <app-tasks></app-tasks>
+}

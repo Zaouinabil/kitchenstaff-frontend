@@ -32,21 +32,23 @@ export class Auth {
     });
   }
 
-  saveSession(response: LoginResponse): void {
-    localStorage.setItem('token', response.token);
-    localStorage.setItem('userName', response.name);
-    localStorage.setItem('userRole', response.role);
-    localStorage.setItem('userEmail', response.email);
+saveSession(response: LoginResponse): void {
+  localStorage.setItem('token', response.token);
+  localStorage.setItem('userName', response.name);
+  localStorage.setItem('userRole', response.role);
+  localStorage.setItem('userEmail', response.email);
 
-    this.authenticatedSubject.next(true);
-  }
+  this.authenticatedSubject.next(true);
+  window.dispatchEvent(new Event('auth-changed'));
+}
 
-  logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
+logout(): void {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userName');
+  localStorage.removeItem('userRole');
+  localStorage.removeItem('userEmail');
 
-    this.authenticatedSubject.next(false);
-  }
+  this.authenticatedSubject.next(false);
+  window.dispatchEvent(new Event('auth-changed'));
+}
 }

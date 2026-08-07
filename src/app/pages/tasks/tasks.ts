@@ -1,6 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { distinctUntilChanged, finalize, Subscription } from 'rxjs';
-import { Auth } from '../../services/auth';
+import { Subscription, finalize } from 'rxjs';
 import { Tasks, Task } from '../../services/tasks';
 
 @Component({
@@ -17,6 +16,8 @@ export class TasksPage implements OnInit, OnDestroy {
 
   selectedStatus = '';
 
+  private currentRequest?: Subscription;
+
   statusFilters = [
     { label: 'Toutes', value: '' },
     { label: 'À faire', value: 'A_FAIRE' },
@@ -25,31 +26,14 @@ export class TasksPage implements OnInit, OnDestroy {
     { label: 'Annulées', value: 'ANNULEE' }
   ];
 
-  private authSubscription?: Subscription;
-
-  constructor(
-    private tasksService: Tasks,
-    private auth: Auth
-  ) {}
+  constructor(private tasksService: Tasks) {}
 
   ngOnInit() {
-    this.authSubscription = this.auth.authenticated$
-      .pipe(distinctUntilChanged())
-      .subscribe((authenticated) => {
-        if (authenticated) {
-          this.loadTasks();
-          return;
-        }
-
-        this.tasks = [];
-        this.errorMessage = 'Connectez-vous pour afficher les tâches.';
-        this.actionMessage = '';
-        this.loading = false;
-      });
+    this.loadTasks();
   }
 
   ngOnDestroy() {
-    this.authSubscription?.unsubscribe();
+    this.currentRequest?.unsubscribe();
   }
 
   loadTasks() {
@@ -57,18 +41,18 @@ export class TasksPage implements OnInit, OnDestroy {
 
     if (!token) {
       this.tasks = [];
-      this.errorMessage = 'Connectez-vous pour afficher les tâches.';
-      this.actionMessage = '';
       this.loading = false;
+      this.errorMessage = 'Connectez-vous pour afficher les tâches.';
       return;
     }
 
+    this.currentRequest?.unsubscribe();
+
     this.loading = true;
-    this.tasks = [];
     this.errorMessage = '';
     this.actionMessage = '';
 
-    this.tasksService.findAll(this.selectedStatus)
+    this.currentRequest = this.tasksService.findAll(this.selectedStatus)
       .pipe(
         finalize(() => {
           this.loading = false;
@@ -77,10 +61,13 @@ export class TasksPage implements OnInit, OnDestroy {
       .subscribe({
         next: (response) => {
           this.tasks = response;
+          this.loading = false;
         },
         error: (error) => {
           console.error('Erreur chargement tâches:', error);
+          this.tasks = [];
           this.errorMessage = 'Impossible de charger les tâches.';
+          this.loading = false;
         }
       });
   }
@@ -91,9 +78,6 @@ export class TasksPage implements OnInit, OnDestroy {
   }
 
   startTask(taskId: number) {
-    this.actionMessage = '';
-    this.errorMessage = '';
-
     this.tasksService.startTask(taskId).subscribe({
       next: () => {
         this.actionMessage = 'Tâche démarrée avec succès.';
@@ -107,9 +91,6 @@ export class TasksPage implements OnInit, OnDestroy {
   }
 
   completeTask(taskId: number) {
-    this.actionMessage = '';
-    this.errorMessage = '';
-
     this.tasksService.completeTask(taskId).subscribe({
       next: () => {
         this.actionMessage = 'Tâche terminée avec succès.';
@@ -123,9 +104,6 @@ export class TasksPage implements OnInit, OnDestroy {
   }
 
   cancelTask(taskId: number) {
-    this.actionMessage = '';
-    this.errorMessage = '';
-
     this.tasksService.cancelTask(taskId).subscribe({
       next: () => {
         this.actionMessage = 'Tâche annulée avec succès.';
