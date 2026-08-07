@@ -1,6 +1,12 @@
 .tasks-page {
-  margin-top: 32px;
+  margin-top: 18px;
   width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
 }
 
 .tasks-header {
@@ -14,6 +20,7 @@
 .tasks-header h2 {
   margin: 0;
   color: #1f2937;
+  font-size: 26px;
 }
 
 .tasks-header p {
@@ -28,10 +35,17 @@
   background: #2563eb;
   color: white;
   cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.tasks-header button:hover {
+  background: #1d4ed8;
 }
 
 .tasks-list {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
@@ -40,6 +54,7 @@
   border-radius: 14px;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
 }
 
 .task-top {
@@ -139,6 +154,12 @@
   color: #374151;
   cursor: pointer;
   font-weight: 600;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.status-filters button:hover {
+  border-color: #2563eb;
+  color: #1d4ed8;
 }
 
 .status-filters button.active {
@@ -150,4 +171,29 @@
 .status.in-progress {
   background: #fef3c7;
   color: #92400e;
+}
+
+@media (max-width: 760px) {
+  .tasks-page {
+    margin-top: 12px;
+    padding: 18px;
+  }
+
+  .tasks-header {
+    align-items: flex-start;
+  }
+
+  .tasks-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .tasks-header {
+    flex-direction: column;
+  }
+
+  .tasks-header button {
+    width: 100%;
+  }
 }

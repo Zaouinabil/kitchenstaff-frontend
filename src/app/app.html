@@ -1,5 +1,7 @@
-<app-login></app-login>
+<div class="app-shell">
+  <app-login></app-login>
 
-@if (isLoggedIn) {
-  <app-tasks></app-tasks>
-}
+  @if (isLoggedIn) {
+    <app-tasks></app-tasks>
+  }
+</div>
