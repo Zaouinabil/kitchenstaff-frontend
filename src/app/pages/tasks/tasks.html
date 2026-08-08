@@ -10,6 +10,90 @@
     </button>
   </div>
 
+  <form class="create-task-form" (ngSubmit)="createTask()">
+    <div class="form-heading">
+      <div>
+        <h3>Nouvelle tâche</h3>
+        <p>Ajoutez une préparation à la liste des tâches.</p>
+      </div>
+
+      @if (optionsLoading) {
+        <span class="form-loading">Chargement des options...</span>
+      }
+    </div>
+
+    <div class="form-grid">
+      <label>
+        Item
+        <select name="itemId" [(ngModel)]="newTask.itemId" required>
+          <option [ngValue]="null" disabled>Sélectionner un item</option>
+          @for (item of items; track item.id) {
+            <option [ngValue]="item.id">{{ item.name }} ({{ item.unit }})</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        Utilisateur assigné
+        <select name="assignedUserId" [(ngModel)]="newTask.assignedUserId" required>
+          <option [ngValue]="null" disabled>Sélectionner un utilisateur</option>
+          @for (user of users; track user.id) {
+            <option [ngValue]="user.id">{{ user.name }} — {{ user.role }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        Quantité
+        <input
+          name="quantity"
+          type="number"
+          min="0.01"
+          step="0.01"
+          [(ngModel)]="newTask.quantity"
+          required
+        />
+      </label>
+
+      <label>
+        Priorité
+        <select name="priority" [(ngModel)]="newTask.priority" required>
+          @for (priority of priorities; track priority.value) {
+            <option [ngValue]="priority.value">{{ priority.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label>
+        Date
+        <input name="taskDate" type="date" [(ngModel)]="newTask.taskDate" required />
+      </label>
+
+      <label class="comment-field">
+        Commentaire
+        <textarea
+          name="comment"
+          rows="3"
+          [(ngModel)]="newTask.comment"
+          placeholder="Instructions ou précisions"
+        ></textarea>
+      </label>
+    </div>
+
+    @if (formErrorMessage) {
+      <p class="error form-message">{{ formErrorMessage }}</p>
+    }
+
+    <div class="form-actions">
+      <button
+        type="submit"
+        [disabled]="creatingTask || optionsLoading || items.length === 0 || users.length === 0"
+      >
+        {{ creatingTask ? 'Création...' : 'Créer la tâche' }}
+      </button>
+    </div>
+  </form>
+
   <div class="status-filters">
     @for (filter of statusFilters; track filter.value) {
       <button

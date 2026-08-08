@@ -18,6 +18,17 @@ export interface Task {
   assignedUserName: string;
 }
 
+export type TaskPriority = 'BASSE' | 'NORMALE' | 'HAUTE' | 'URGENTE';
+
+export interface CreateTaskRequest {
+  itemId: number;
+  assignedUserId: number;
+  quantity: number;
+  priority: TaskPriority;
+  comment: string;
+  taskDate: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -36,6 +47,12 @@ export class Tasks {
     return this.http.get<Task[]>(this.apiUrl, {
       headers: this.getHeaders(),
       params: params
+    });
+  }
+
+  createTask(request: CreateTaskRequest): Observable<Task> {
+    return this.http.post<Task>(this.apiUrl, request, {
+      headers: this.getHeaders()
     });
   }
 
