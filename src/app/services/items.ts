@@ -8,7 +8,7 @@ export interface Item {
   unit: string;
   categoryId: number;
   categoryName: string;
-  active?: boolean;
+  active: boolean;
 }
 
 @Injectable({
