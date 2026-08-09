@@ -143,6 +143,53 @@
   opacity: 0.6;
 }
 
+.tasks-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-top: 4px solid #64748b;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.summary-card span {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.summary-card strong {
+  color: #1f2937;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.summary-todo {
+  border-top-color: #6366f1;
+}
+
+.summary-progress {
+  border-top-color: #f59e0b;
+}
+
+.summary-completed {
+  border-top-color: #16a34a;
+}
+
+.summary-cancelled {
+  border-top-color: #dc2626;
+}
+
 .tasks-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -289,6 +336,10 @@
   .form-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .tasks-summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 480px) {
@@ -310,5 +361,9 @@
 
   .form-actions button {
     width: 100%;
+  }
+
+  .tasks-summary {
+    grid-template-columns: 1fr;
   }
 }

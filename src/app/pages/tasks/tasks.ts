@@ -1,9 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Subscription, finalize, forkJoin } from 'rxjs';
+import { catchError, Subscription, finalize, forkJoin, map, of } from 'rxjs';
 import { Item, Items } from '../../services/items';
 import { CreateTaskRequest, Tasks, Task, TaskPriority } from '../../services/tasks';
 import { User, Users } from '../../services/users';
+
+interface TaskSummary {
+  total: number;
+  todo: number;
+  inProgress: number;
+  completed: number;
+  cancelled: number;
+}
 
 @Component({
   selector: 'app-tasks',
@@ -19,6 +27,8 @@ export class TasksPage implements OnInit, OnDestroy {
   formErrorMessage = '';
   optionsLoading = false;
   creatingTask = false;
+
+  summary: TaskSummary = this.getEmptySummary();
 
   items: Item[] = [];
   users: User[] = [];
@@ -68,20 +78,33 @@ export class TasksPage implements OnInit, OnDestroy {
     this.formErrorMessage = '';
 
     this.formDataRequest = forkJoin({
-      items: this.itemsService.findAll(),
-      users: this.usersService.findActive()
+      items: this.itemsService.findAll().pipe(
+        catchError((error) => {
+          console.error('Erreur chargement items:', error);
+          return of([] as Item[]);
+        })
+      ),
+      users: this.usersService.findActive().pipe(
+        catchError((error) => {
+          if (error.status === 403) {
+            console.error(
+              'Accès refusé aux utilisateurs (403). Testez avec un compte ADMIN.'
+            );
+          } else {
+            console.error('Erreur chargement utilisateurs:', error);
+          }
+
+          return of([] as User[]);
+        })
+      )
     })
       .pipe(finalize(() => {
         this.optionsLoading = false;
       }))
       .subscribe({
         next: ({ items, users }) => {
-          this.items = items.filter((item) => item.active);
+          this.items = items;
           this.users = users;
-        },
-        error: (error) => {
-          console.error('Erreur chargement données formulaire:', error);
-          this.formErrorMessage = 'Impossible de charger les données du formulaire.';
         }
       });
   }
@@ -129,6 +152,7 @@ export class TasksPage implements OnInit, OnDestroy {
 
     if (!token) {
       this.tasks = [];
+      this.summary = this.getEmptySummary();
       this.loading = false;
       this.errorMessage = 'Connectez-vous pour afficher les tâches.';
       return;
@@ -140,20 +164,31 @@ export class TasksPage implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.actionMessage = '';
 
-    this.currentRequest = this.tasksService.findAll(this.selectedStatus)
+    const tasksRequest = this.selectedStatus
+      ? forkJoin({
+          tasks: this.tasksService.findAll(this.selectedStatus),
+          summaryTasks: this.tasksService.findAll()
+        })
+      : this.tasksService.findAll().pipe(
+          map((tasks) => ({ tasks, summaryTasks: tasks }))
+        );
+
+    this.currentRequest = tasksRequest
       .pipe(
         finalize(() => {
           this.loading = false;
         })
       )
       .subscribe({
-        next: (response) => {
-          this.tasks = response;
+        next: ({ tasks, summaryTasks }) => {
+          this.tasks = tasks;
+          this.summary = this.calculateSummary(summaryTasks);
           this.loading = false;
         },
         error: (error) => {
           console.error('Erreur chargement tâches:', error);
           this.tasks = [];
+          this.summary = this.getEmptySummary();
           this.errorMessage = 'Impossible de charger les tâches.';
           this.loading = false;
         }
@@ -217,6 +252,34 @@ export class TasksPage implements OnInit, OnDestroy {
       priority: 'NORMALE' as TaskPriority,
       comment: '',
       taskDate: localDate
+    };
+  }
+
+  private calculateSummary(tasks: Task[]): TaskSummary {
+    return tasks.reduce<TaskSummary>((summary, task) => {
+      summary.total += 1;
+
+      if (task.status === 'A_FAIRE') {
+        summary.todo += 1;
+      } else if (task.status === 'EN_COURS') {
+        summary.inProgress += 1;
+      } else if (task.status === 'TERMINEE') {
+        summary.completed += 1;
+      } else if (task.status === 'ANNULEE') {
+        summary.cancelled += 1;
+      }
+
+      return summary;
+    }, this.getEmptySummary());
+  }
+
+  private getEmptySummary(): TaskSummary {
+    return {
+      total: 0,
+      todo: 0,
+      inProgress: 0,
+      completed: 0,
+      cancelled: 0
     };
   }
 }

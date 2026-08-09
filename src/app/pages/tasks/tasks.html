@@ -26,7 +26,13 @@
       <label>
         Item
         <select name="itemId" [(ngModel)]="newTask.itemId" required>
-          <option [ngValue]="null" disabled>Sélectionner un item</option>
+          <option [ngValue]="null" disabled>
+            {{ optionsLoading
+              ? 'Chargement des items...'
+              : items.length > 0
+                ? 'Sélectionner un item'
+                : 'Aucun item disponible' }}
+          </option>
           @for (item of items; track item.id) {
             <option [ngValue]="item.id">{{ item.name }} ({{ item.unit }})</option>
           }
@@ -36,7 +42,13 @@
       <label>
         Utilisateur assigné
         <select name="assignedUserId" [(ngModel)]="newTask.assignedUserId" required>
-          <option [ngValue]="null" disabled>Sélectionner un utilisateur</option>
+          <option [ngValue]="null" disabled>
+            {{ optionsLoading
+              ? 'Chargement des utilisateurs...'
+              : users.length > 0
+                ? 'Sélectionner un utilisateur'
+                : 'Aucun utilisateur actif disponible' }}
+          </option>
           @for (user of users; track user.id) {
             <option [ngValue]="user.id">{{ user.name }} — {{ user.role }}</option>
           }
@@ -93,6 +105,33 @@
       </button>
     </div>
   </form>
+
+  <section class="tasks-summary" aria-label="Résumé des tâches">
+    <article class="summary-card summary-total">
+      <span>Total tâches</span>
+      <strong>{{ summary.total }}</strong>
+    </article>
+
+    <article class="summary-card summary-todo">
+      <span>À faire</span>
+      <strong>{{ summary.todo }}</strong>
+    </article>
+
+    <article class="summary-card summary-progress">
+      <span>En cours</span>
+      <strong>{{ summary.inProgress }}</strong>
+    </article>
+
+    <article class="summary-card summary-completed">
+      <span>Terminées</span>
+      <strong>{{ summary.completed }}</strong>
+    </article>
+
+    <article class="summary-card summary-cancelled">
+      <span>Annulées</span>
+      <strong>{{ summary.cancelled }}</strong>
+    </article>
+  </section>
 
   <div class="status-filters">
     @for (filter of statusFilters; track filter.value) {
