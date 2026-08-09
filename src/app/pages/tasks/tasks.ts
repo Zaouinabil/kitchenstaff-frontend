@@ -43,6 +43,7 @@ export class TasksPage implements OnInit, OnDestroy {
   ];
 
   selectedStatus = '';
+  selectedPriority: TaskPriority | '' = '';
 
   private currentRequest?: Subscription;
   private formDataRequest?: Subscription;
@@ -55,6 +56,22 @@ export class TasksPage implements OnInit, OnDestroy {
     { label: 'Terminées', value: 'TERMINEE' },
     { label: 'Annulées', value: 'ANNULEE' }
   ];
+
+  priorityFilters: { label: string; value: TaskPriority | '' }[] = [
+    { label: 'Toutes', value: '' },
+    { label: 'BASSE', value: 'BASSE' },
+    { label: 'NORMALE', value: 'NORMALE' },
+    { label: 'HAUTE', value: 'HAUTE' },
+    { label: 'URGENTE', value: 'URGENTE' }
+  ];
+
+  get filteredTasks(): Task[] {
+    if (!this.selectedPriority) {
+      return this.tasks;
+    }
+
+    return this.tasks.filter((task) => task.priority === this.selectedPriority);
+  }
 
   constructor(
     private tasksService: Tasks,
@@ -198,6 +215,10 @@ export class TasksPage implements OnInit, OnDestroy {
   changeStatusFilter(status: string) {
     this.selectedStatus = status;
     this.loadTasks();
+  }
+
+  changePriorityFilter(priority: TaskPriority | '') {
+    this.selectedPriority = priority;
   }
 
   startTask(taskId: number) {

@@ -285,14 +285,39 @@
   background: #fee2e2;
   color: #991b1b;
 }
-.status-filters {
+.task-filters {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.filter-label {
+  width: 58px;
+  flex: 0 0 58px;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-filters,
+.priority-filters {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
   flex-wrap: wrap;
 }
 
-.status-filters button {
+.status-filters button,
+.priority-filters button {
   padding: 8px 12px;
   border: 1px solid #d1d5db;
   border-radius: 999px;
@@ -303,12 +328,14 @@
   transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
-.status-filters button:hover {
+.status-filters button:hover,
+.priority-filters button:hover {
   border-color: #2563eb;
   color: #1d4ed8;
 }
 
-.status-filters button.active {
+.status-filters button.active,
+.priority-filters button.active {
   background: #2563eb;
   color: white;
   border-color: #2563eb;
@@ -365,5 +392,16 @@
 
   .tasks-summary {
     grid-template-columns: 1fr;
+  }
+
+  .filter-group {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .filter-label {
+    width: auto;
+    flex-basis: auto;
   }
 }
