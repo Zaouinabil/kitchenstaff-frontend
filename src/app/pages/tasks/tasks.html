@@ -135,6 +135,19 @@
 
   <div class="task-filters">
     <div class="filter-group">
+      <label class="filter-label" for="task-date-filter">Date</label>
+      <div class="date-filter">
+        <input
+          id="task-date-filter"
+          type="date"
+          [ngModel]="selectedDate"
+          (ngModelChange)="changeDateFilter($event)"
+        />
+        <button type="button" (click)="resetDateFilter()">Aujourd’hui</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
       <span class="filter-label">Statut</span>
       <div class="status-filters">
         @for (filter of statusFilters; track filter.value) {

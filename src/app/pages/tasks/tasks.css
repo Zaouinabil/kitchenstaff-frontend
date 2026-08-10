@@ -310,14 +310,16 @@
 }
 
 .status-filters,
-.priority-filters {
+.priority-filters,
+.date-filter {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
 .status-filters button,
-.priority-filters button {
+.priority-filters button,
+.date-filter button {
   padding: 8px 12px;
   border: 1px solid #d1d5db;
   border-radius: 999px;
@@ -329,9 +331,24 @@
 }
 
 .status-filters button:hover,
-.priority-filters button:hover {
+.priority-filters button:hover,
+.date-filter button:hover {
   border-color: #2563eb;
   color: #1d4ed8;
+}
+
+.date-filter input {
+  padding: 7px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: white;
+  color: #374151;
+  font: inherit;
+}
+
+.date-filter input:focus {
+  border-color: #2563eb;
+  outline: 2px solid #dbeafe;
 }
 
 .status-filters button.active,

@@ -44,6 +44,7 @@ export class TasksPage implements OnInit, OnDestroy {
 
   selectedStatus = '';
   selectedPriority: TaskPriority | '' = '';
+  selectedDate = this.getTodayDate();
 
   private currentRequest?: Subscription;
   private formDataRequest?: Subscription;
@@ -183,10 +184,10 @@ export class TasksPage implements OnInit, OnDestroy {
 
     const tasksRequest = this.selectedStatus
       ? forkJoin({
-          tasks: this.tasksService.findAll(this.selectedStatus),
-          summaryTasks: this.tasksService.findAll()
+          tasks: this.tasksService.findAll(this.selectedStatus, this.selectedDate),
+          summaryTasks: this.tasksService.findAll('', this.selectedDate)
         })
-      : this.tasksService.findAll().pipe(
+      : this.tasksService.findAll('', this.selectedDate).pipe(
           map((tasks) => ({ tasks, summaryTasks: tasks }))
         );
 
@@ -219,6 +220,26 @@ export class TasksPage implements OnInit, OnDestroy {
 
   changePriorityFilter(priority: TaskPriority | '') {
     this.selectedPriority = priority;
+  }
+
+  changeDateFilter(date: string) {
+    if (!date) {
+      return;
+    }
+
+    this.selectedDate = date;
+    this.loadTasks();
+  }
+
+  resetDateFilter() {
+    const today = this.getTodayDate();
+
+    if (this.selectedDate === today) {
+      return;
+    }
+
+    this.selectedDate = today;
+    this.loadTasks();
   }
 
   startTask(taskId: number) {
@@ -261,19 +282,22 @@ export class TasksPage implements OnInit, OnDestroy {
   }
 
   private getEmptyTaskForm() {
-    const today = new Date();
-    const localDate = new Date(today.getTime() - today.getTimezoneOffset() * 60_000)
-      .toISOString()
-      .slice(0, 10);
-
     return {
       itemId: null as number | null,
       assignedUserId: null as number | null,
       quantity: 1,
       priority: 'NORMALE' as TaskPriority,
       comment: '',
-      taskDate: localDate
+      taskDate: this.getTodayDate()
     };
+  }
+
+  private getTodayDate(): string {
+    const today = new Date();
+
+    return new Date(today.getTime() - today.getTimezoneOffset() * 60_000)
+      .toISOString()
+      .slice(0, 10);
   }
 
   private calculateSummary(tasks: Task[]): TaskSummary {

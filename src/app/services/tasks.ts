@@ -37,11 +37,15 @@ export class Tasks {
 
   constructor(private http: HttpClient) {}
 
-  findAll(status?: string): Observable<Task[]> {
+  findAll(status?: string, date?: string): Observable<Task[]> {
     let params = new HttpParams();
 
     if (status) {
       params = params.set('status', status);
+    }
+
+    if (date) {
+      params = params.set('date', date);
     }
 
     return this.http.get<Task[]>(this.apiUrl, {
