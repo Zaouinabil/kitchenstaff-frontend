@@ -51,6 +51,16 @@
   border-radius: 12px;
 }
 
+.role-info {
+  margin: 0 0 24px;
+  padding: 12px 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1e40af;
+  font-size: 14px;
+}
+
 .form-heading {
   display: flex;
   justify-content: space-between;

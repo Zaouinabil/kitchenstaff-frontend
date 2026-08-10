@@ -20,6 +20,7 @@ interface TaskSummary {
   styleUrl: './tasks.css'
 })
 export class TasksPage implements OnInit, OnDestroy {
+  userRole = '';
   tasks: Task[] = [];
   loading = false;
   errorMessage = '';
@@ -74,6 +75,18 @@ export class TasksPage implements OnInit, OnDestroy {
     return this.tasks.filter((task) => task.priority === this.selectedPriority);
   }
 
+  get canCreateTask(): boolean {
+    return this.userRole === 'ADMIN' || this.userRole === 'CHEF';
+  }
+
+  get canCancelTask(): boolean {
+    return this.userRole === 'ADMIN' || this.userRole === 'CHEF';
+  }
+
+  get isCommis(): boolean {
+    return this.userRole === 'COMMIS';
+  }
+
   constructor(
     private tasksService: Tasks,
     private itemsService: Items,
@@ -81,7 +94,12 @@ export class TasksPage implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    this.loadFormData();
+    this.userRole = (localStorage.getItem('userRole') ?? '').toUpperCase();
+
+    if (this.canCreateTask) {
+      this.loadFormData();
+    }
+
     this.loadTasks();
   }
 
@@ -128,6 +146,11 @@ export class TasksPage implements OnInit, OnDestroy {
   }
 
   createTask() {
+    if (!this.canCreateTask) {
+      this.formErrorMessage = 'La création de tâche est réservée au chef.';
+      return;
+    }
+
     const { itemId, assignedUserId, quantity, priority, comment, taskDate } = this.newTask;
 
     if (itemId === null || assignedUserId === null || quantity <= 0 || !taskDate) {
@@ -269,6 +292,11 @@ export class TasksPage implements OnInit, OnDestroy {
   }
 
   cancelTask(taskId: number) {
+    if (!this.canCancelTask) {
+      this.errorMessage = 'Vous n’êtes pas autorisé à annuler une tâche.';
+      return;
+    }
+
     this.tasksService.cancelTask(taskId).subscribe({
       next: () => {
         this.actionMessage = 'Tâche annulée avec succès.';

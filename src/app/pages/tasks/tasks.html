@@ -10,6 +10,13 @@
     </button>
   </div>
 
+  @if (isCommis) {
+    <p class="role-info">
+      Vous pouvez consulter et mettre à jour vos tâches, mais la création est réservée au chef.
+    </p>
+  }
+
+  @if (canCreateTask) {
   <form class="create-task-form" (ngSubmit)="createTask()">
     <div class="form-heading">
       <div>
@@ -105,6 +112,7 @@
       </button>
     </div>
   </form>
+  }
 
   <section class="tasks-summary" aria-label="Résumé des tâches">
     <article class="summary-card summary-total">
@@ -245,7 +253,7 @@
               </button>
             }
 
-            @if (task.status !== 'TERMINEE' && task.status !== 'ANNULEE') {
+            @if (canCancelTask && task.status !== 'TERMINEE' && task.status !== 'ANNULEE') {
               <button type="button" class="cancel-button" (click)="cancelTask(task.id)">
                 Annuler
               </button>
