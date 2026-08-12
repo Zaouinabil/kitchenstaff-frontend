@@ -186,6 +186,23 @@
     </div>
   </div>
 
+  <div class="task-search">
+    <label for="task-search-input">Rechercher une tâche</label>
+    <div class="search-control">
+      <input
+        id="task-search-input"
+        type="search"
+        [(ngModel)]="searchQuery"
+        placeholder="Item, catégorie, utilisateur ou commentaire"
+      />
+      @if (searchQuery) {
+        <button type="button" (click)="clearSearch()" aria-label="Vider la recherche">
+          Effacer
+        </button>
+      }
+    </div>
+  </div>
+
   @if (loading && tasks.length === 0) {
     <p class="info">Chargement des tâches...</p>
   }

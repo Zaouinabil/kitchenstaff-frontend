@@ -46,6 +46,7 @@ export class TasksPage implements OnInit, OnDestroy {
   selectedStatus = '';
   selectedPriority: TaskPriority | '' = '';
   selectedDate = this.getTodayDate();
+  searchQuery = '';
 
   private currentRequest?: Subscription;
   private formDataRequest?: Subscription;
@@ -68,11 +69,22 @@ export class TasksPage implements OnInit, OnDestroy {
   ];
 
   get filteredTasks(): Task[] {
-    if (!this.selectedPriority) {
-      return this.tasks;
-    }
+    const normalizedSearch = this.searchQuery.trim().toLocaleLowerCase();
 
-    return this.tasks.filter((task) => task.priority === this.selectedPriority);
+    return this.tasks.filter((task) => {
+      const matchesPriority = !this.selectedPriority || task.priority === this.selectedPriority;
+
+      if (!matchesPriority || !normalizedSearch) {
+        return matchesPriority;
+      }
+
+      return [
+        task.itemName,
+        task.categoryName,
+        task.assignedUserName,
+        task.comment
+      ].some((value) => value?.toLocaleLowerCase().includes(normalizedSearch));
+    });
   }
 
   get canCreateTask(): boolean {
@@ -243,6 +255,10 @@ export class TasksPage implements OnInit, OnDestroy {
 
   changePriorityFilter(priority: TaskPriority | '') {
     this.selectedPriority = priority;
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
   }
 
   changeDateFilter(date: string) {
