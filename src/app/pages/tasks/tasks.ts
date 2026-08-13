@@ -112,6 +112,10 @@ export class TasksPage implements OnInit, OnDestroy {
     return this.userRole === 'ADMIN' || this.userRole === 'CHEF';
   }
 
+  get canDeleteTask(): boolean {
+    return this.userRole === 'ADMIN' || this.userRole === 'CHEF';
+  }
+
   get isCommis(): boolean {
     return this.userRole === 'COMMIS';
   }
@@ -370,6 +374,35 @@ export class TasksPage implements OnInit, OnDestroy {
       error: (error) => {
         console.error('Erreur annulation tâche:', error);
         this.errorMessage = 'Impossible d’annuler la tâche.';
+      }
+    });
+  }
+
+  deleteTask(taskId: number) {
+    if (!this.canDeleteTask) {
+      this.errorMessage = 'Vous n’êtes pas autorisé à supprimer une tâche.';
+      return;
+    }
+
+    if (!confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
+      return;
+    }
+
+    this.errorMessage = '';
+    this.actionMessage = '';
+
+    this.tasksService.deleteTask(taskId).subscribe({
+      next: () => {
+        if (this.editingTaskId === taskId) {
+          this.resetTaskForm();
+        }
+
+        this.loadTasks();
+        this.actionMessage = 'Tâche supprimée avec succès.';
+      },
+      error: (error) => {
+        console.error('Erreur suppression tâche:', error);
+        this.errorMessage = 'Impossible de supprimer la tâche.';
       }
     });
   }

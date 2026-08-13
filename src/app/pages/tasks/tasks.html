@@ -297,6 +297,12 @@
                 Annuler
               </button>
             }
+
+            @if (canDeleteTask) {
+              <button type="button" class="delete-button" (click)="deleteTask(task.id)">
+                Supprimer
+              </button>
+            }
           </div>
         </article>
       }

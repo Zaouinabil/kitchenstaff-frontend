@@ -68,6 +68,12 @@ export class Tasks {
     });
   }
 
+  deleteTask(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, {
+      headers: this.getHeaders()
+    });
+  }
+
   startTask(id: number): Observable<Task> {
     return this.http.patch<Task>(`${this.apiUrl}/${id}/start`, {}, {
       headers: this.getHeaders()

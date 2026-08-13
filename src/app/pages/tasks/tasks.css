@@ -304,6 +304,10 @@
   background: #dc2626;
 }
 
+.delete-button {
+  background: #7f1d1d;
+}
+
 .status.done {
   background: #dcfce7;
   color: #166534;
