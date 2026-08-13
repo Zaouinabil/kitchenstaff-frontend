@@ -29,6 +29,8 @@ export interface CreateTaskRequest {
   taskDate: string;
 }
 
+export type UpdateTaskRequest = CreateTaskRequest;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -56,6 +58,12 @@ export class Tasks {
 
   createTask(request: CreateTaskRequest): Observable<Task> {
     return this.http.post<Task>(this.apiUrl, request, {
+      headers: this.getHeaders()
+    });
+  }
+
+  updateTask(id: number, request: UpdateTaskRequest): Observable<Task> {
+    return this.http.put<Task>(`${this.apiUrl}/${id}`, request, {
       headers: this.getHeaders()
     });
   }

@@ -28,6 +28,7 @@ export class TasksPage implements OnInit, OnDestroy {
   formErrorMessage = '';
   optionsLoading = false;
   creatingTask = false;
+  editingTaskId: number | null = null;
 
   summary: TaskSummary = this.getEmptySummary();
 
@@ -85,6 +86,22 @@ export class TasksPage implements OnInit, OnDestroy {
         task.comment
       ].some((value) => value?.toLocaleLowerCase().includes(normalizedSearch));
     });
+  }
+
+  get emptyTasksMessage(): string {
+    if (this.summary.total === 0) {
+      return 'Aucune tâche trouvée pour cette date.';
+    }
+
+    if (this.searchQuery.trim()) {
+      return 'Aucune tâche ne correspond à votre recherche.';
+    }
+
+    if (this.selectedStatus || this.selectedPriority) {
+      return 'Aucune tâche ne correspond aux filtres sélectionnés.';
+    }
+
+    return 'Aucune tâche trouvée.';
   }
 
   get canCreateTask(): boolean {
@@ -157,9 +174,9 @@ export class TasksPage implements OnInit, OnDestroy {
       });
   }
 
-  createTask() {
+  submitTask() {
     if (!this.canCreateTask) {
-      this.formErrorMessage = 'La création de tâche est réservée au chef.';
+      this.formErrorMessage = 'La gestion des tâches est réservée au chef.';
       return;
     }
 
@@ -183,21 +200,53 @@ export class TasksPage implements OnInit, OnDestroy {
     this.formErrorMessage = '';
     this.actionMessage = '';
 
-    this.createRequest = this.tasksService.createTask(request)
+    const taskId = this.editingTaskId;
+    const taskRequest = taskId === null
+      ? this.tasksService.createTask(request)
+      : this.tasksService.updateTask(taskId, request);
+
+    this.createRequest = taskRequest
       .pipe(finalize(() => {
         this.creatingTask = false;
       }))
       .subscribe({
         next: () => {
-          this.newTask = this.getEmptyTaskForm();
+          this.resetTaskForm();
           this.loadTasks();
-          this.actionMessage = 'Tâche créée avec succès.';
+          this.actionMessage = taskId !== null
+            ? 'Tâche mise à jour avec succès.'
+            : 'Tâche créée avec succès.';
         },
         error: (error) => {
-          console.error('Erreur création tâche:', error);
-          this.formErrorMessage = 'Impossible de créer la tâche.';
+          console.error('Erreur enregistrement tâche:', error);
+          this.formErrorMessage = taskId === null
+            ? 'Impossible de créer la tâche.'
+            : 'Impossible de mettre à jour la tâche.';
         }
       });
+  }
+
+  editTask(task: Task) {
+    if (!this.canCreateTask) {
+      this.errorMessage = 'Vous n’êtes pas autorisé à modifier une tâche.';
+      return;
+    }
+
+    this.editingTaskId = task.id;
+    this.newTask = {
+      itemId: task.itemId,
+      assignedUserId: task.assignedUserId,
+      quantity: task.quantity,
+      priority: task.priority as TaskPriority,
+      comment: task.comment ?? '',
+      taskDate: task.taskDate
+    };
+    this.formErrorMessage = '';
+    this.actionMessage = '';
+  }
+
+  cancelEdit() {
+    this.resetTaskForm();
   }
 
   loadTasks() {
@@ -334,6 +383,12 @@ export class TasksPage implements OnInit, OnDestroy {
       comment: '',
       taskDate: this.getTodayDate()
     };
+  }
+
+  private resetTaskForm() {
+    this.editingTaskId = null;
+    this.newTask = this.getEmptyTaskForm();
+    this.formErrorMessage = '';
   }
 
   private getTodayDate(): string {

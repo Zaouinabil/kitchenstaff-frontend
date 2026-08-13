@@ -131,6 +131,7 @@
 .form-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
   margin-top: 16px;
 }
 
@@ -151,6 +152,18 @@
 .form-actions button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+.form-actions .secondary-button {
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+}
+
+.form-actions .secondary-button:hover {
+  border-color: #2563eb;
+  background: white;
+  color: #1d4ed8;
 }
 
 .tasks-summary {
@@ -277,6 +290,10 @@
 
 .start-button {
   background: #2563eb;
+}
+
+.edit-button {
+  background: #475569;
 }
 
 .done-button {
