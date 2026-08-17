@@ -44,8 +44,6 @@ export class Login {
 
         this.successMessage = `Connexion réussie. Bienvenue ${response.name}.`;
         this.loading = false;
-
-        console.log('Token JWT:', response.token);
       },
       error: (error) => {
         console.error('Erreur login:', error);
