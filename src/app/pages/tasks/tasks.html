@@ -48,6 +48,9 @@
             <option [ngValue]="item.id">{{ item.name }} ({{ item.unit }})</option>
           }
         </select>
+        @if (fieldErrors.itemId) {
+          <p class="error field-error">{{ fieldErrors.itemId }}</p>
+        }
       </label>
 
       <label>
@@ -64,6 +67,9 @@
             <option [ngValue]="user.id">{{ user.name }} — {{ user.role }}</option>
           }
         </select>
+        @if (fieldErrors.assignedUserId) {
+          <p class="error field-error">{{ fieldErrors.assignedUserId }}</p>
+        }
       </label>
 
       <label>
@@ -76,6 +82,9 @@
           [(ngModel)]="newTask.quantity"
           required
         />
+        @if (fieldErrors.quantity) {
+          <p class="error field-error">{{ fieldErrors.quantity }}</p>
+        }
       </label>
 
       <label>
@@ -85,11 +94,17 @@
             <option [ngValue]="priority.value">{{ priority.label }}</option>
           }
         </select>
+        @if (fieldErrors.priority) {
+          <p class="error field-error">{{ fieldErrors.priority }}</p>
+        }
       </label>
 
       <label>
         Date
         <input name="taskDate" type="date" [(ngModel)]="newTask.taskDate" required />
+        @if (fieldErrors.taskDate) {
+          <p class="error field-error">{{ fieldErrors.taskDate }}</p>
+        }
       </label>
 
       <label class="comment-field">

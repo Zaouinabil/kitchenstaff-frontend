@@ -26,6 +26,7 @@ export class TasksPage implements OnInit, OnDestroy {
   errorMessage = '';
   actionMessage = '';
   formErrorMessage = '';
+  fieldErrors: { [key: string]: string } = {};
   optionsLoading = false;
   creatingTask = false;
   editingTaskId: number | null = null;
@@ -186,8 +187,43 @@ export class TasksPage implements OnInit, OnDestroy {
 
     const { itemId, assignedUserId, quantity, priority, comment, taskDate } = this.newTask;
 
-    if (itemId === null || assignedUserId === null || quantity <= 0 || !taskDate) {
-      this.formErrorMessage = 'Veuillez compléter tous les champs obligatoires.';
+    // Reset previous errors
+    this.fieldErrors = {};
+    this.formErrorMessage = '';
+
+    if (itemId === null) {
+      this.fieldErrors.itemId = 'L\'item est obligatoire.';
+      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      return;
+    }
+
+    if (assignedUserId === null) {
+      this.fieldErrors.assignedUserId = "L'utilisateur assigné est obligatoire.";
+      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      return;
+    }
+
+    if (quantity === null || quantity === undefined || Number.isNaN(quantity)) {
+      this.fieldErrors.quantity = 'La quantité est obligatoire.';
+      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      return;
+    }
+
+    if (quantity <= 0) {
+      this.fieldErrors.quantity = 'La quantité doit être supérieure à 0.';
+      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      return;
+    }
+
+    if (!priority) {
+      this.fieldErrors.priority = 'La priorité est obligatoire.';
+      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      return;
+    }
+
+    if (!taskDate) {
+      this.fieldErrors.taskDate = 'La date est obligatoire.';
+      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
       return;
     }
 
@@ -246,6 +282,7 @@ export class TasksPage implements OnInit, OnDestroy {
       taskDate: task.taskDate
     };
     this.formErrorMessage = '';
+    this.fieldErrors = {};
     this.actionMessage = '';
   }
 
@@ -422,6 +459,7 @@ export class TasksPage implements OnInit, OnDestroy {
     this.editingTaskId = null;
     this.newTask = this.getEmptyTaskForm();
     this.formErrorMessage = '';
+    this.fieldErrors = {};
   }
 
   private getTodayDate(): string {

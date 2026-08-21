@@ -267,6 +267,11 @@
   color: #dc2626;
   font-weight: bold;
 }
+.field-error {
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
 .success {
   color: #16a34a;
   font-weight: bold;
