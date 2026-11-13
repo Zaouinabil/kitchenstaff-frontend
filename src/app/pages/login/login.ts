@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-login',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.css'
@@ -24,6 +26,10 @@ export class Login {
   }
 
   onSubmit() {
+    if (this.loading) {
+      return;
+    }
+
     this.errorMessage = '';
     this.successMessage = '';
 
@@ -34,27 +40,32 @@ export class Login {
 
     this.loading = true;
 
-    this.auth.login(this.email, this.password).subscribe({
-      next: (response) => {
-        this.auth.saveSession(response);
-
-        this.isLoggedIn = true;
-        this.userName = response.name;
-        this.userRole = response.role;
-
-        this.successMessage = `Connexion réussie. Bienvenue ${response.name}.`;
+    this.auth.login(this.email.trim(), this.password)
+      .pipe(finalize(() => {
         this.loading = false;
-      },
-      error: (error) => {
-        console.error('Erreur login:', error);
+      }))
+      .subscribe({
+        next: (response) => {
+          this.auth.saveSession(response);
 
-        this.errorMessage = 'Connexion impossible. Vérifiez vos identifiants.';
-        this.loading = false;
-      },
-      complete: () => {
-        this.loading = false;
-      }
-    });
+          this.isLoggedIn = true;
+          this.userName = response.name;
+          this.userRole = response.role;
+
+          this.successMessage = `Connexion réussie. Bienvenue ${response.name}.`;
+        },
+        error: (error) => {
+          console.error('Erreur login:', error);
+
+          if (error.status === 0) {
+            this.errorMessage = 'Le serveur ne répond pas ou la connexion a expiré. Vérifiez que le backend est démarré et ouvrez l’application sur http://localhost:4200.';
+          } else if (error.status === 401 || error.status === 403) {
+            this.errorMessage = 'Connexion impossible. Vérifiez vos identifiants.';
+          } else {
+            this.errorMessage = 'Une erreur du serveur empêche la connexion. Réessayez dans un instant.';
+          }
+        }
+      });
   }
 
   logout() {

@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Login } from './pages/login/login';
 import { TasksPage } from './pages/tasks/tasks';
 
 @Component({
   selector: 'app-root',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [Login, TasksPage],
   templateUrl: './app.html',
   styleUrl: './app.css'

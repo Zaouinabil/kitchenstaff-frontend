@@ -29,7 +29,7 @@ export class Auth {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, {
       email,
       password
-    });
+    }, { timeout: 15_000 });
   }
 
 saveSession(response: LoginResponse): void {

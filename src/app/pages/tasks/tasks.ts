@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { catchError, Subscription, finalize, forkJoin, map, of } from 'rxjs';
 import { Item, Items } from '../../services/items';
@@ -15,6 +15,7 @@ interface TaskSummary {
 
 @Component({
   selector: 'app-tasks',
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [FormsModule],
   templateUrl: './tasks.html',
   styleUrl: './tasks.css'
@@ -26,7 +27,7 @@ export class TasksPage implements OnInit, OnDestroy {
   errorMessage = '';
   actionMessage = '';
   formErrorMessage = '';
-  fieldErrors: { [key: string]: string } = {};
+  fieldErrors: Partial<Record<keyof CreateTaskRequest, string>> = {};
   optionsLoading = false;
   creatingTask = false;
   editingTaskId: number | null = null;
