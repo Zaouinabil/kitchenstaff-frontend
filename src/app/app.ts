@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Login } from './pages/login/login';
 import { TasksPage } from './pages/tasks/tasks';
+import { LanguageService } from './i18n/language.service';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,8 @@ import { TasksPage } from './pages/tasks/tasks';
 export class App implements OnInit, OnDestroy {
   protected title = 'kitchenstaff-frontend';
   isLoggedIn = false;
+
+  constructor(public readonly i18n: LanguageService) {}
 
   private authListener = () => {
     this.checkLogin();

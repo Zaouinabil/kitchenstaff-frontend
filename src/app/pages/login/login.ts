@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Auth } from '../../services/auth';
+import { LanguageService } from '../../i18n/language.service';
+import type { loginFr } from '../../i18n/login.translations';
 
 @Component({
   selector: 'app-login',
@@ -11,10 +13,11 @@ import { Auth } from '../../services/auth';
   styleUrl: './login.css'
 })
 export class Login {
+  readonly i18n = inject(LanguageService);
   email = '';
   password = '';
-  errorMessage = '';
-  successMessage = '';
+  private errorKey: keyof typeof loginFr | '' = '';
+  private loginSucceeded = false;
   loading = false;
 
   isLoggedIn = false;
@@ -25,16 +28,24 @@ export class Login {
     this.loadSession();
   }
 
+  get errorMessage(): string {
+    return this.i18n.t(this.errorKey);
+  }
+
+  get successMessage(): string {
+    return this.loginSucceeded ? this.i18n.t('login.success', { name: this.userName }) : '';
+  }
+
   onSubmit() {
     if (this.loading) {
       return;
     }
 
-    this.errorMessage = '';
-    this.successMessage = '';
+    this.errorKey = '';
+    this.loginSucceeded = false;
 
     if (!this.email.trim() || !this.password.trim()) {
-      this.errorMessage = 'Veuillez remplir l’email et le mot de passe.';
+      this.errorKey = 'login.error.required';
       return;
     }
 
@@ -52,32 +63,32 @@ export class Login {
           this.userName = response.name;
           this.userRole = response.role;
 
-          this.successMessage = `Connexion réussie. Bienvenue ${response.name}.`;
+          this.loginSucceeded = true;
         },
         error: (error) => {
           console.error('Erreur login:', error);
 
           if (error.status === 0) {
-            this.errorMessage = 'Le serveur ne répond pas ou la connexion a expiré. Vérifiez que le backend est démarré et ouvrez l’application sur http://localhost:4200.';
+            this.errorKey = 'login.error.connection';
           } else if (error.status === 401 || error.status === 403) {
-            this.errorMessage = 'Connexion impossible. Vérifiez vos identifiants.';
+            this.errorKey = 'login.error.credentials';
           } else {
-            this.errorMessage = 'Une erreur du serveur empêche la connexion. Réessayez dans un instant.';
+            this.errorKey = 'login.error.server';
           }
         }
       });
   }
 
   logout() {
-  this.auth.logout();
+    this.auth.logout();
 
-  this.isLoggedIn = false;
-  this.userName = '';
-  this.userRole = '';
-  this.successMessage = '';
-  this.errorMessage = '';
-  this.password = '';
-}
+    this.isLoggedIn = false;
+    this.userName = '';
+    this.userRole = '';
+    this.loginSucceeded = false;
+    this.errorKey = '';
+    this.password = '';
+  }
 
   private loadSession() {
     const token = localStorage.getItem('token');

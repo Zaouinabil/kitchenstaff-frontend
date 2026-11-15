@@ -17,6 +17,36 @@ app-tasks {
   display: block;
 }
 
+.language-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.language-bar label {
+  font-weight: 600;
+}
+
+.language-bar select {
+  min-height: 44px;
+  max-width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #9ca3af;
+  border-radius: 8px;
+  background: #fff;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.language-bar select:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
 @media (max-width: 640px) {
   .app-shell {
     width: min(100% - 24px, 1120px);

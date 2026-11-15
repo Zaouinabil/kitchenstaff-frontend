@@ -14,6 +14,15 @@
 - [ ] Vérifier que les données de test nécessaires sont disponibles.
 - [ ] Ouvrir l'application dans une fenêtre de navigation privée pour tester une session propre.
 
+## Langues FR / EN / NL
+
+- [ ] Vérifier le sélecteur avant puis après connexion avec chaque rôle.
+- [ ] Passer de FR à EN, puis NL et FR ; vérifier formulaires, filtres, boutons, statuts, priorités, rôles et textes d’aide.
+- [ ] Afficher une erreur puis changer de langue ; vérifier que le message déjà visible est traduit.
+- [ ] Recharger dans chaque langue et vérifier que le choix est conservé, y compris après déconnexion.
+- [ ] Vérifier la langue du document, les quantités et la lisibilité sur écran étroit.
+- [ ] Vérifier que les noms, commentaires et valeurs envoyées à l’API ne changent pas avec la langue.
+
 ## Authentification
 
 - [ ] Se connecter avec chacun des trois comptes de test.

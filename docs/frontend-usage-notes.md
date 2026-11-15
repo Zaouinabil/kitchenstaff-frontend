@@ -12,6 +12,14 @@ Pour utiliser l’application en local, démarrer les différents composants dan
 
 Ouvrir ensuite `http://localhost:4200` dans un navigateur.
 
+## Langue de l’interface
+
+Le sélecteur **Langue**, en haut de la page, permet de choisir **FR — Français**, **EN — English** ou **NL — Nederlands**, avant et après connexion.
+
+Les textes de connexion, de gestion des tâches, les statuts, priorités, rôles et messages changent immédiatement. Le choix est conservé dans ce navigateur après rechargement et déconnexion. Le français est utilisé lorsqu’aucun choix valide n’est enregistré. Si le navigateur interdit le stockage local, le changement fonctionne pour la page ouverte, mais sa conservation n’est pas garantie.
+
+Les noms de préparations, catégories, personnes, unités et commentaires restent les données saisies. Les champs de date conservent leur valeur technique ISO ; l’apparence de leur calendrier dépend aussi du navigateur et du système.
+
 ## Comptes de test
 
 | Rôle | Adresse e-mail | Mot de passe |

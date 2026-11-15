@@ -4,6 +4,8 @@ import { catchError, Subscription, finalize, forkJoin, map, of } from 'rxjs';
 import { Item, Items } from '../../services/items';
 import { CreateTaskRequest, Tasks, Task, TaskPriority } from '../../services/tasks';
 import { User, Users } from '../../services/users';
+import { LanguageService } from '../../i18n/language.service';
+import type { TasksTranslationKey } from '../../i18n/tasks.translations';
 
 interface TaskSummary {
   total: number;
@@ -24,10 +26,10 @@ export class TasksPage implements OnInit, OnDestroy {
   userRole = '';
   tasks: Task[] = [];
   loading = false;
-  errorMessage = '';
-  actionMessage = '';
-  formErrorMessage = '';
-  fieldErrors: Partial<Record<keyof CreateTaskRequest, string>> = {};
+  private errorMessageKey: TasksTranslationKey | '' = '';
+  private actionMessageKey: TasksTranslationKey | '' = '';
+  private formErrorMessageKey: TasksTranslationKey | '' = '';
+  fieldErrors: Partial<Record<keyof CreateTaskRequest, TasksTranslationKey>> = {};
   optionsLoading = false;
   creatingTask = false;
   editingTaskId: number | null = null;
@@ -39,12 +41,12 @@ export class TasksPage implements OnInit, OnDestroy {
 
   newTask = this.getEmptyTaskForm();
 
-  priorities: { label: string; value: TaskPriority }[] = [
-    { label: 'Basse', value: 'BASSE' },
-    { label: 'Normale', value: 'NORMALE' },
-    { label: 'Haute', value: 'HAUTE' },
-    { label: 'Urgente', value: 'URGENTE' }
-  ];
+  get priorities(): { label: string; value: TaskPriority }[] {
+    return (['BASSE', 'NORMALE', 'HAUTE', 'URGENTE'] as const).map((value) => ({
+      label: this.i18n.priorityLabel(value),
+      value
+    }));
+  }
 
   selectedStatus = '';
   selectedPriority: TaskPriority | '' = '';
@@ -55,24 +57,38 @@ export class TasksPage implements OnInit, OnDestroy {
   private formDataRequest?: Subscription;
   private createRequest?: Subscription;
 
-  statusFilters = [
-    { label: 'Toutes', value: '' },
-    { label: 'À faire', value: 'A_FAIRE' },
-    { label: 'En cours', value: 'EN_COURS' },
-    { label: 'Terminées', value: 'TERMINEE' },
-    { label: 'Annulées', value: 'ANNULEE' }
-  ];
+  get statusFilters(): { label: string; value: string }[] {
+    return [
+      { label: this.i18n.t('tasks.filters.all'), value: '' },
+      ...['A_FAIRE', 'EN_COURS', 'TERMINEE', 'ANNULEE'].map((value) => ({
+        label: this.i18n.statusLabel(value),
+        value
+      }))
+    ];
+  }
 
-  priorityFilters: { label: string; value: TaskPriority | '' }[] = [
-    { label: 'Toutes', value: '' },
-    { label: 'BASSE', value: 'BASSE' },
-    { label: 'NORMALE', value: 'NORMALE' },
-    { label: 'HAUTE', value: 'HAUTE' },
-    { label: 'URGENTE', value: 'URGENTE' }
-  ];
+  get priorityFilters(): { label: string; value: TaskPriority | '' }[] {
+    return [
+      { label: this.i18n.t('tasks.filters.all'), value: '' },
+      ...this.priorities
+    ];
+  }
+
+  get errorMessage(): string {
+    return this.i18n.t(this.errorMessageKey);
+  }
+
+  get actionMessage(): string {
+    return this.i18n.t(this.actionMessageKey);
+  }
+
+  get formErrorMessage(): string {
+    return this.i18n.t(this.formErrorMessageKey);
+  }
 
   get filteredTasks(): Task[] {
-    const normalizedSearch = this.searchQuery.trim().toLocaleLowerCase();
+    const language = this.i18n.language();
+    const normalizedSearch = this.searchQuery.trim().toLocaleLowerCase(language);
 
     return this.tasks.filter((task) => {
       const matchesPriority = !this.selectedPriority || task.priority === this.selectedPriority;
@@ -86,24 +102,24 @@ export class TasksPage implements OnInit, OnDestroy {
         task.categoryName,
         task.assignedUserName,
         task.comment
-      ].some((value) => value?.toLocaleLowerCase().includes(normalizedSearch));
+      ].some((value) => value?.toLocaleLowerCase(language).includes(normalizedSearch));
     });
   }
 
   get emptyTasksMessage(): string {
     if (this.summary.total === 0) {
-      return 'Aucune tâche trouvée pour cette date.';
+      return this.i18n.t('tasks.empty.date');
     }
 
     if (this.searchQuery.trim()) {
-      return 'Aucune tâche ne correspond à votre recherche.';
+      return this.i18n.t('tasks.empty.search');
     }
 
     if (this.selectedStatus || this.selectedPriority) {
-      return 'Aucune tâche ne correspond aux filtres sélectionnés.';
+      return this.i18n.t('tasks.empty.filters');
     }
 
-    return 'Aucune tâche trouvée.';
+    return this.i18n.t('tasks.empty.all');
   }
 
   get canCreateTask(): boolean {
@@ -125,7 +141,8 @@ export class TasksPage implements OnInit, OnDestroy {
   constructor(
     private tasksService: Tasks,
     private itemsService: Items,
-    private usersService: Users
+    private usersService: Users,
+    public readonly i18n: LanguageService
   ) {}
 
   ngOnInit() {
@@ -146,7 +163,7 @@ export class TasksPage implements OnInit, OnDestroy {
 
   loadFormData() {
     this.optionsLoading = true;
-    this.formErrorMessage = '';
+    this.formErrorMessageKey = '';
 
     this.formDataRequest = forkJoin({
       items: this.itemsService.findAll().pipe(
@@ -182,7 +199,7 @@ export class TasksPage implements OnInit, OnDestroy {
 
   submitTask() {
     if (!this.canCreateTask) {
-      this.formErrorMessage = 'La gestion des tâches est réservée au chef.';
+      this.formErrorMessageKey = 'tasks.error.managementForbidden';
       return;
     }
 
@@ -190,41 +207,41 @@ export class TasksPage implements OnInit, OnDestroy {
 
     // Reset previous errors
     this.fieldErrors = {};
-    this.formErrorMessage = '';
+    this.formErrorMessageKey = '';
 
     if (itemId === null) {
-      this.fieldErrors.itemId = 'L\'item est obligatoire.';
-      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      this.fieldErrors.itemId = 'tasks.validation.itemRequired';
+      this.formErrorMessageKey = 'tasks.validation.invalidForm';
       return;
     }
 
     if (assignedUserId === null) {
-      this.fieldErrors.assignedUserId = "L'utilisateur assigné est obligatoire.";
-      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      this.fieldErrors.assignedUserId = 'tasks.validation.userRequired';
+      this.formErrorMessageKey = 'tasks.validation.invalidForm';
       return;
     }
 
     if (quantity === null || quantity === undefined || Number.isNaN(quantity)) {
-      this.fieldErrors.quantity = 'La quantité est obligatoire.';
-      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      this.fieldErrors.quantity = 'tasks.validation.quantityRequired';
+      this.formErrorMessageKey = 'tasks.validation.invalidForm';
       return;
     }
 
     if (quantity <= 0) {
-      this.fieldErrors.quantity = 'La quantité doit être supérieure à 0.';
-      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      this.fieldErrors.quantity = 'tasks.validation.quantityPositive';
+      this.formErrorMessageKey = 'tasks.validation.invalidForm';
       return;
     }
 
     if (!priority) {
-      this.fieldErrors.priority = 'La priorité est obligatoire.';
-      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      this.fieldErrors.priority = 'tasks.validation.priorityRequired';
+      this.formErrorMessageKey = 'tasks.validation.invalidForm';
       return;
     }
 
     if (!taskDate) {
-      this.fieldErrors.taskDate = 'La date est obligatoire.';
-      this.formErrorMessage = 'Veuillez corriger les erreurs du formulaire.';
+      this.fieldErrors.taskDate = 'tasks.validation.dateRequired';
+      this.formErrorMessageKey = 'tasks.validation.invalidForm';
       return;
     }
 
@@ -238,8 +255,8 @@ export class TasksPage implements OnInit, OnDestroy {
     };
 
     this.creatingTask = true;
-    this.formErrorMessage = '';
-    this.actionMessage = '';
+    this.formErrorMessageKey = '';
+    this.actionMessageKey = '';
 
     const taskId = this.editingTaskId;
     const taskRequest = taskId === null
@@ -254,22 +271,22 @@ export class TasksPage implements OnInit, OnDestroy {
         next: () => {
           this.resetTaskForm();
           this.loadTasks();
-          this.actionMessage = taskId !== null
-            ? 'Tâche mise à jour avec succès.'
-            : 'Tâche créée avec succès.';
+          this.actionMessageKey = taskId !== null
+            ? 'tasks.success.update'
+            : 'tasks.success.create';
         },
         error: (error) => {
           console.error('Erreur enregistrement tâche:', error);
-          this.formErrorMessage = taskId === null
-            ? 'Impossible de créer la tâche.'
-            : 'Impossible de mettre à jour la tâche.';
+          this.formErrorMessageKey = taskId === null
+            ? 'tasks.error.create'
+            : 'tasks.error.update';
         }
       });
   }
 
   editTask(task: Task) {
     if (!this.canCreateTask) {
-      this.errorMessage = 'Vous n’êtes pas autorisé à modifier une tâche.';
+      this.errorMessageKey = 'tasks.error.editForbidden';
       return;
     }
 
@@ -282,9 +299,9 @@ export class TasksPage implements OnInit, OnDestroy {
       comment: task.comment ?? '',
       taskDate: task.taskDate
     };
-    this.formErrorMessage = '';
+    this.formErrorMessageKey = '';
     this.fieldErrors = {};
-    this.actionMessage = '';
+    this.actionMessageKey = '';
   }
 
   cancelEdit() {
@@ -298,15 +315,15 @@ export class TasksPage implements OnInit, OnDestroy {
       this.tasks = [];
       this.summary = this.getEmptySummary();
       this.loading = false;
-      this.errorMessage = 'Connectez-vous pour afficher les tâches.';
+      this.errorMessageKey = 'tasks.error.loginRequired';
       return;
     }
 
     this.currentRequest?.unsubscribe();
 
     this.loading = true;
-    this.errorMessage = '';
-    this.actionMessage = '';
+    this.errorMessageKey = '';
+    this.actionMessageKey = '';
 
     const tasksRequest = this.selectedStatus
       ? forkJoin({
@@ -333,7 +350,7 @@ export class TasksPage implements OnInit, OnDestroy {
           console.error('Erreur chargement tâches:', error);
           this.tasks = [];
           this.summary = this.getEmptySummary();
-          this.errorMessage = 'Impossible de charger les tâches.';
+          this.errorMessageKey = 'tasks.error.load';
           this.loading = false;
         }
       });
@@ -375,12 +392,12 @@ export class TasksPage implements OnInit, OnDestroy {
   startTask(taskId: number) {
     this.tasksService.startTask(taskId).subscribe({
       next: () => {
-        this.actionMessage = 'Tâche démarrée avec succès.';
         this.loadTasks();
+        this.actionMessageKey = 'tasks.success.start';
       },
       error: (error) => {
         console.error('Erreur démarrage tâche:', error);
-        this.errorMessage = 'Impossible de démarrer la tâche.';
+        this.errorMessageKey = 'tasks.error.start';
       }
     });
   }
@@ -388,46 +405,46 @@ export class TasksPage implements OnInit, OnDestroy {
   completeTask(taskId: number) {
     this.tasksService.completeTask(taskId).subscribe({
       next: () => {
-        this.actionMessage = 'Tâche terminée avec succès.';
         this.loadTasks();
+        this.actionMessageKey = 'tasks.success.complete';
       },
       error: (error) => {
         console.error('Erreur fin tâche:', error);
-        this.errorMessage = 'Impossible de terminer la tâche.';
+        this.errorMessageKey = 'tasks.error.complete';
       }
     });
   }
 
   cancelTask(taskId: number) {
     if (!this.canCancelTask) {
-      this.errorMessage = 'Vous n’êtes pas autorisé à annuler une tâche.';
+      this.errorMessageKey = 'tasks.error.cancelForbidden';
       return;
     }
 
     this.tasksService.cancelTask(taskId).subscribe({
       next: () => {
-        this.actionMessage = 'Tâche annulée avec succès.';
         this.loadTasks();
+        this.actionMessageKey = 'tasks.success.cancel';
       },
       error: (error) => {
         console.error('Erreur annulation tâche:', error);
-        this.errorMessage = 'Impossible d’annuler la tâche.';
+        this.errorMessageKey = 'tasks.error.cancel';
       }
     });
   }
 
   deleteTask(taskId: number) {
     if (!this.canDeleteTask) {
-      this.errorMessage = 'Vous n’êtes pas autorisé à supprimer une tâche.';
+      this.errorMessageKey = 'tasks.error.deleteForbidden';
       return;
     }
 
-    if (!confirm('Voulez-vous vraiment supprimer cette tâche ?')) {
+    if (!confirm(this.i18n.t('tasks.confirm.delete'))) {
       return;
     }
 
-    this.errorMessage = '';
-    this.actionMessage = '';
+    this.errorMessageKey = '';
+    this.actionMessageKey = '';
 
     this.tasksService.deleteTask(taskId).subscribe({
       next: () => {
@@ -436,11 +453,11 @@ export class TasksPage implements OnInit, OnDestroy {
         }
 
         this.loadTasks();
-        this.actionMessage = 'Tâche supprimée avec succès.';
+        this.actionMessageKey = 'tasks.success.delete';
       },
       error: (error) => {
         console.error('Erreur suppression tâche:', error);
-        this.errorMessage = 'Impossible de supprimer la tâche.';
+        this.errorMessageKey = 'tasks.error.delete';
       }
     });
   }
@@ -459,7 +476,7 @@ export class TasksPage implements OnInit, OnDestroy {
   private resetTaskForm() {
     this.editingTaskId = null;
     this.newTask = this.getEmptyTaskForm();
-    this.formErrorMessage = '';
+    this.formErrorMessageKey = '';
     this.fieldErrors = {};
   }
 

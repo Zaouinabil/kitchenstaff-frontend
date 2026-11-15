@@ -1,18 +1,18 @@
 <section class="tasks-page">
   <div class="tasks-header">
     <div>
-      <h2>Tâches du jour</h2>
-      <p>Liste des préparations à suivre en cuisine.</p>
+      <h2>{{ i18n.t('tasks.title') }}</h2>
+      <p>{{ i18n.t('tasks.description') }}</p>
     </div>
 
     <button type="button" (click)="loadTasks()">
-      Actualiser
+      {{ i18n.t('tasks.refresh') }}
     </button>
   </div>
 
   @if (isCommis) {
     <p class="role-info">
-      Vous pouvez consulter et mettre à jour vos tâches, mais la création est réservée au chef.
+      {{ i18n.t('tasks.commisHint') }}
     </p>
   }
 
@@ -20,100 +20,101 @@
   <form class="create-task-form" (ngSubmit)="submitTask()">
     <div class="form-heading">
       <div>
-        <h3>{{ editingTaskId === null ? 'Nouvelle tâche' : 'Modifier la tâche' }}</h3>
+        <h3>{{ i18n.t(editingTaskId === null ? 'tasks.form.createTitle' : 'tasks.form.editTitle') }}</h3>
         <p>
-          {{ editingTaskId === null
-            ? 'Ajoutez une préparation à la liste des tâches.'
-            : 'Modifiez les informations de la tâche sélectionnée.' }}
+          {{ i18n.t(editingTaskId === null
+            ? 'tasks.form.createHint'
+            : 'tasks.form.editHint') }}
         </p>
       </div>
 
       @if (optionsLoading) {
-        <span class="form-loading">Chargement des options...</span>
+        <span class="form-loading">{{ i18n.t('tasks.form.loadingOptions') }}</span>
       }
     </div>
 
     <div class="form-grid">
       <label>
-        Item
+        {{ i18n.t('tasks.form.item') }}
         <select name="itemId" [(ngModel)]="newTask.itemId" required>
           <option [ngValue]="null" disabled>
-            {{ optionsLoading
-              ? 'Chargement des items...'
+            {{ i18n.t(optionsLoading
+              ? 'tasks.form.loadingItems'
               : items.length > 0
-                ? 'Sélectionner un item'
-                : 'Aucun item disponible' }}
+                ? 'tasks.form.selectItem'
+                : 'tasks.form.noItems') }}
           </option>
           @for (item of items; track item.id) {
             <option [ngValue]="item.id">{{ item.name }} ({{ item.unit }})</option>
           }
         </select>
         @if (fieldErrors.itemId) {
-          <p class="error field-error">{{ fieldErrors.itemId }}</p>
+          <p class="error field-error">{{ i18n.t(fieldErrors.itemId) }}</p>
         }
       </label>
 
       <label>
-        Utilisateur assigné
+        {{ i18n.t('tasks.form.assignedUser') }}
         <select name="assignedUserId" [(ngModel)]="newTask.assignedUserId" required>
           <option [ngValue]="null" disabled>
-            {{ optionsLoading
-              ? 'Chargement des utilisateurs...'
+            {{ i18n.t(optionsLoading
+              ? 'tasks.form.loadingUsers'
               : users.length > 0
-                ? 'Sélectionner un utilisateur'
-                : 'Aucun utilisateur actif disponible' }}
+                ? 'tasks.form.selectUser'
+                : 'tasks.form.noUsers') }}
           </option>
           @for (user of users; track user.id) {
-            <option [ngValue]="user.id">{{ user.name }} — {{ user.role }}</option>
+            <option [ngValue]="user.id">{{ user.name }} — {{ i18n.roleLabel(user.role) }}</option>
           }
         </select>
         @if (fieldErrors.assignedUserId) {
-          <p class="error field-error">{{ fieldErrors.assignedUserId }}</p>
+          <p class="error field-error">{{ i18n.t(fieldErrors.assignedUserId) }}</p>
         }
       </label>
 
       <label>
-        Quantité
+        {{ i18n.t('tasks.quantity') }}
         <input
           name="quantity"
           type="number"
+          [lang]="i18n.language()"
           min="0.01"
           step="0.01"
           [(ngModel)]="newTask.quantity"
           required
         />
         @if (fieldErrors.quantity) {
-          <p class="error field-error">{{ fieldErrors.quantity }}</p>
+          <p class="error field-error">{{ i18n.t(fieldErrors.quantity) }}</p>
         }
       </label>
 
       <label>
-        Priorité
+        {{ i18n.t('tasks.priority') }}
         <select name="priority" [(ngModel)]="newTask.priority" required>
           @for (priority of priorities; track priority.value) {
             <option [ngValue]="priority.value">{{ priority.label }}</option>
           }
         </select>
         @if (fieldErrors.priority) {
-          <p class="error field-error">{{ fieldErrors.priority }}</p>
+          <p class="error field-error">{{ i18n.t(fieldErrors.priority) }}</p>
         }
       </label>
 
       <label>
-        Date
-        <input name="taskDate" type="date" [(ngModel)]="newTask.taskDate" required />
+        {{ i18n.t('tasks.date') }}
+        <input name="taskDate" type="date" [lang]="i18n.language()" [(ngModel)]="newTask.taskDate" required />
         @if (fieldErrors.taskDate) {
-          <p class="error field-error">{{ fieldErrors.taskDate }}</p>
+          <p class="error field-error">{{ i18n.t(fieldErrors.taskDate) }}</p>
         }
       </label>
 
       <label class="comment-field">
-        Commentaire
+        {{ i18n.t('tasks.form.comment') }}
         <textarea
           name="comment"
           rows="3"
           [(ngModel)]="newTask.comment"
-          placeholder="Instructions ou précisions"
+          [placeholder]="i18n.t('tasks.form.commentPlaceholder')"
         ></textarea>
       </label>
     </div>
@@ -130,64 +131,65 @@
           [disabled]="creatingTask"
           (click)="cancelEdit()"
         >
-          Annuler la modification
+          {{ i18n.t('tasks.form.cancelEdit') }}
         </button>
       }
       <button
         type="submit"
         [disabled]="creatingTask || optionsLoading || items.length === 0 || users.length === 0"
       >
-        {{ creatingTask
-          ? (editingTaskId === null ? 'Création...' : 'Mise à jour...')
-          : (editingTaskId === null ? 'Créer la tâche' : 'Mettre à jour la tâche') }}
+        {{ i18n.t(creatingTask
+          ? (editingTaskId === null ? 'tasks.form.creating' : 'tasks.form.updating')
+          : (editingTaskId === null ? 'tasks.form.create' : 'tasks.form.update')) }}
       </button>
     </div>
   </form>
   }
 
-  <section class="tasks-summary" aria-label="Résumé des tâches">
+  <section class="tasks-summary" [attr.aria-label]="i18n.t('tasks.summary.label')">
     <article class="summary-card summary-total">
-      <span>Total tâches</span>
-      <strong>{{ summary.total }}</strong>
+      <span>{{ i18n.t('tasks.summary.total') }}</span>
+      <strong>{{ i18n.formatNumber(summary.total) }}</strong>
     </article>
 
     <article class="summary-card summary-todo">
-      <span>À faire</span>
-      <strong>{{ summary.todo }}</strong>
+      <span>{{ i18n.t('tasks.summary.todo') }}</span>
+      <strong>{{ i18n.formatNumber(summary.todo) }}</strong>
     </article>
 
     <article class="summary-card summary-progress">
-      <span>En cours</span>
-      <strong>{{ summary.inProgress }}</strong>
+      <span>{{ i18n.t('tasks.summary.inProgress') }}</span>
+      <strong>{{ i18n.formatNumber(summary.inProgress) }}</strong>
     </article>
 
     <article class="summary-card summary-completed">
-      <span>Terminées</span>
-      <strong>{{ summary.completed }}</strong>
+      <span>{{ i18n.t('tasks.summary.completed') }}</span>
+      <strong>{{ i18n.formatNumber(summary.completed) }}</strong>
     </article>
 
     <article class="summary-card summary-cancelled">
-      <span>Annulées</span>
-      <strong>{{ summary.cancelled }}</strong>
+      <span>{{ i18n.t('tasks.summary.cancelled') }}</span>
+      <strong>{{ i18n.formatNumber(summary.cancelled) }}</strong>
     </article>
   </section>
 
   <div class="task-filters">
     <div class="filter-group">
-      <label class="filter-label" for="task-date-filter">Date</label>
+      <label class="filter-label" for="task-date-filter">{{ i18n.t('tasks.date') }}</label>
       <div class="date-filter">
         <input
           id="task-date-filter"
           type="date"
+          [lang]="i18n.language()"
           [ngModel]="selectedDate"
           (ngModelChange)="changeDateFilter($event)"
         />
-        <button type="button" (click)="resetDateFilter()">Aujourd’hui</button>
+        <button type="button" (click)="resetDateFilter()">{{ i18n.t('tasks.filters.today') }}</button>
       </div>
     </div>
 
     <div class="filter-group">
-      <span class="filter-label">Statut</span>
+      <span class="filter-label">{{ i18n.t('tasks.filters.status') }}</span>
       <div class="status-filters">
         @for (filter of statusFilters; track filter.value) {
           <button
@@ -202,7 +204,7 @@
     </div>
 
     <div class="filter-group">
-      <span class="filter-label">Priorité</span>
+      <span class="filter-label">{{ i18n.t('tasks.priority') }}</span>
       <div class="priority-filters">
         @for (filter of priorityFilters; track filter.value) {
           <button
@@ -218,24 +220,24 @@
   </div>
 
   <div class="task-search">
-    <label for="task-search-input">Rechercher une tâche</label>
+    <label for="task-search-input">{{ i18n.t('tasks.search.label') }}</label>
     <div class="search-control">
       <input
         id="task-search-input"
         type="search"
         [(ngModel)]="searchQuery"
-        placeholder="Item, catégorie, utilisateur ou commentaire"
+        [placeholder]="i18n.t('tasks.search.placeholder')"
       />
       @if (searchQuery) {
-        <button type="button" (click)="clearSearch()" aria-label="Vider la recherche">
-          Effacer
+        <button type="button" (click)="clearSearch()" [attr.aria-label]="i18n.t('tasks.search.clearLabel')">
+          {{ i18n.t('tasks.search.clear') }}
         </button>
       }
     </div>
   </div>
 
   @if (loading && tasks.length === 0) {
-    <p class="info">Chargement des tâches...</p>
+    <p class="info">{{ i18n.t('tasks.loading') }}</p>
   }
 
   @if (errorMessage) {
@@ -263,25 +265,25 @@
               [class.cancelled]="task.status === 'ANNULEE'"
               [class.in-progress]="task.status === 'EN_COURS'"
             >
-              {{ task.status }}
+              {{ i18n.statusLabel(task.status) }}
             </span>
           </div>
 
           <p class="category">{{ task.categoryName }}</p>
 
           <p>
-            Quantité :
-            <strong>{{ task.quantity }} {{ task.unit }}</strong>
+            {{ i18n.t('tasks.card.quantity') }}
+            <strong>{{ i18n.formatNumber(task.quantity) }} {{ task.unit }}</strong>
           </p>
 
           <p>
-            Priorité :
-            <strong>{{ task.priority }}</strong>
+            {{ i18n.t('tasks.card.priority') }}
+            <strong>{{ i18n.priorityLabel(task.priority) }}</strong>
           </p>
 
           <p>
-            Assigné à :
-            <strong>{{ task.assignedUserName || 'Non assigné' }}</strong>
+            {{ i18n.t('tasks.card.assignedTo') }}
+            <strong>{{ task.assignedUserName || i18n.t('tasks.card.unassigned') }}</strong>
           </p>
 
           <p class="comment">
@@ -291,31 +293,31 @@
           <div class="task-actions">
             @if (canCreateTask) {
               <button type="button" class="edit-button" (click)="editTask(task)">
-                Modifier
+                {{ i18n.t('tasks.actions.edit') }}
               </button>
             }
 
             @if (task.status === 'A_FAIRE') {
               <button type="button" class="start-button" (click)="startTask(task.id)">
-                Démarrer
+                {{ i18n.t('tasks.actions.start') }}
               </button>
             }
 
             @if (task.status === 'EN_COURS') {
               <button type="button" class="done-button" (click)="completeTask(task.id)">
-                Terminer
+                {{ i18n.t('tasks.actions.complete') }}
               </button>
             }
 
             @if (canCancelTask && task.status !== 'TERMINEE' && task.status !== 'ANNULEE') {
               <button type="button" class="cancel-button" (click)="cancelTask(task.id)">
-                Annuler
+                {{ i18n.t('tasks.actions.cancel') }}
               </button>
             }
 
             @if (canDeleteTask) {
               <button type="button" class="delete-button" (click)="deleteTask(task.id)">
-                Supprimer
+                {{ i18n.t('tasks.actions.delete') }}
               </button>
             }
           </div>

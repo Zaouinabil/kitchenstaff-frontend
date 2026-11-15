@@ -1,4 +1,18 @@
 <div class="app-shell">
+  <div class="language-bar">
+    <label for="language">{{ i18n.t('common.language') }}</label>
+    <select
+      id="language"
+      #languageSelect
+      [value]="i18n.language()"
+      (change)="i18n.setLanguage(languageSelect.value)"
+    >
+      <option value="fr" lang="fr">FR — Français</option>
+      <option value="en" lang="en">EN — English</option>
+      <option value="nl" lang="nl">NL — Nederlands</option>
+    </select>
+  </div>
+
   <app-login></app-login>
 
   @if (isLoggedIn) {
